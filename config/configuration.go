@@ -1,17 +1,39 @@
 package config
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"log"
 	"path/filepath"
 	"strings"
+	"text/template"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/qiangyt/jog/static"
+	"github.com/qiangyt/jog/static/grok_vjeantet"
 	"github.com/qiangyt/jog/util"
 	"gopkg.in/yaml.v2"
 )
+
+const (
+	jogHomeDir = "~/.jog"
+)
+
+// JogHomeDir ...
+func JogHomeDir(expand bool, children ...string) string {
+	var r string
+
+	if !expand {
+		r = jogHomeDir
+	} else {
+		r = util.ExpandPath(jogHomeDir)
+		util.MkdirAll(r)
+	}
+
+	return filepath.Join(r, filepath.Join(children...))
+}
 
 // ConfigurationT ...
 type ConfigurationT struct {
@@ -213,13 +235,94 @@ func DetermineConfigFilePath() string {
 	return lookForConfigFile(dir)
 }
 
+type grokPatternItem struct {
+	Name string
+	Expr string
+}
+
+func parseGrokPatterns(patternsText string) []grokPatternItem {
+	r := make([]grokPatternItem, 0)
+
+	buf := bytes.NewBufferString(patternsText)
+
+	scanner := bufio.NewScanner(buf)
+	for scanner.Scan() {
+		l := scanner.Text()
+		l = strings.TrimSpace(l)
+		if len(l) > 0 && l[0] != '#' {
+			nameAndExpr := strings.SplitN(l, " ", 2)
+
+			p := grokPatternItem{}
+			p.Name = nameAndExpr[0]
+			p.Expr = nameAndExpr[1]
+
+			r = append(r, p)
+		}
+	}
+
+	return r
+}
+
+func loadAllGrokPatterns() []grokPatternItem {
+	r := []grokPatternItem{}
+
+	r = append(r, parseGrokPatterns(grok_vjeantet.Aws)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Bacula)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Bro)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Exim)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Firewalls)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Grok_patterns)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Haproxy)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Java)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Junos)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Linux_syslog)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Mcollective_patterns)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Mcollective)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Mongodb)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Nagios)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Postgresql)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Rails)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Redis)...)
+	r = append(r, parseGrokPatterns(grok_vjeantet.Ruby)...)
+
+	return r
+}
+
+func mergeGrokPatterns(allPatterns map[string]grokPatternItem, patternsText string) {
+	newPatterns := parseGrokPatterns(patternsText)
+	for _, pattern := range newPatterns {
+		name := pattern.Name
+		if existingOne, alreadyExists := allPatterns[name]; alreadyExists == true {
+			panic(fmt.Errorf("duplicated grok pattern. name: %s. existing: %s. duplicated: %s", name, existingOne.Expr, pattern.Expr))
+		}
+		allPatterns[name] = pattern
+	}
+}
+
+// BuildDefaultConfigurationYAML ...
+func BuildDefaultConfigurationYAML() string {
+	tmpl, err := template.New("default configuration YAML").Parse(static.DefaultConfiguration_yml)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to parse default configuration YAML as template"))
+	}
+
+	grokPatterns := loadAllGrokPatterns()
+
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, map[string]interface{}{"grokPatterns": grokPatterns})
+	if err != nil {
+		panic(errors.Wrap(err, "failed to execute default configuration YAML as template"))
+	}
+	return buf.String()
+}
+
 // WithDefaultYamlFile ...
 func WithDefaultYamlFile() Configuration {
 	path := DetermineConfigFilePath()
 
 	if len(path) == 0 {
 		log.Println("config file not found, take default one")
-		return WithYaml(static.DefaultConfiguration_yml)
+		return WithYaml(BuildDefaultConfigurationYAML())
 	}
 
 	log.Printf("config file: %s\n", path)

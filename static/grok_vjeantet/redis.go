@@ -1,8 +1,9 @@
-package grok_patterns 
+package grok_vjeantet 
 
 const (
   // Redis ...
-  Redis = `REDISTIMESTAMP %{MONTHDAY} %{MONTH} %{TIME}
+  Redis string = `
+REDISTIMESTAMP %{MONTHDAY} %{MONTH} %{TIME}
 REDISLOG \[%{POSINT:pid}\] %{REDISTIMESTAMP:timestamp} \* 
 
 `

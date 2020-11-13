@@ -1,8 +1,9 @@
-package grok_patterns 
+package grok_vjeantet 
 
 const (
   // Mongodb ...
-  Mongodb = `MONGO_LOG %{SYSLOGTIMESTAMP:timestamp} \[%{WORD:component}\] %{GREEDYDATA:message}
+  Mongodb string = `
+MONGO_LOG %{SYSLOGTIMESTAMP:timestamp} \[%{WORD:component}\] %{GREEDYDATA:message}
 MONGO_QUERY \{ (?<={ ).*(?= } ntoreturn:) \}
 MONGO_SLOWQUERY %{WORD} %{MONGO_WORDDASH:database}\.%{MONGO_WORDDASH:collection} %{WORD}: %{MONGO_QUERY:query} %{WORD}:%{NONNEGINT:ntoreturn} %{WORD}:%{NONNEGINT:ntoskip} %{WORD}:%{NONNEGINT:nscanned}.*nreturned:%{NONNEGINT:nreturned}..+ (?<duration>[0-9]+)ms
 MONGO_WORDDASH \b[\w-]+\b

@@ -1,8 +1,9 @@
-package grok_patterns 
+package grok_vjeantet 
 
 const (
   // Rails ...
-  Rails = `RUUID \h{32}
+  Rails string = `
+RUUID \h{32}
 # rails controller with action
 RCONTROLLER (?<controller>[^#]+)#(?<action>\w+)
 

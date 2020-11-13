@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gookit/color"
-	"github.com/qiangyt/jog/static"
+	"github.com/qiangyt/jog/config"
 )
 
 const (
 	// AppVersion ...
-	AppVersion = "v0.9.20"
+	AppVersion = "v0.9.21"
 )
 
 // PrintVersion ...
@@ -19,11 +20,13 @@ func PrintVersion() {
 
 // PrintConfigTemplate ...
 func PrintConfigTemplate() {
-	fmt.Println(static.DefaultConfiguration_yml)
+	fmt.Println(config.BuildDefaultConfigurationYAML())
 }
 
 // PrintHelp ...
 func PrintHelp() {
+	defaultGrokLibraryDirs := strings.Join(config.DefaultGrokLibraryDirs(false), ", ")
+
 	color.New(color.Blue, color.OpBold).Println("\nConvert and view structured (JSON) log")
 	PrintVersion()
 	fmt.Println()
@@ -45,6 +48,7 @@ func PrintHelp() {
 	fmt.Println("   8) natural timestamp range:           jog --after \"1 week\" --before \"2 days\" app-20200701-1.log")
 	fmt.Println("   9) output raw JSON and apply time range filter:      jog --after \"1 week\" --before \"2 days\" app-20200701-1.log --json")
 	fmt.Println("   10) disable colorization:             jog -cs colorization=false app-20200701-1.log")
+	fmt.Println("   11) view apache log, non-JSON log     jog -g COMMONAPACHELOG example_logs/grok_apache.log")
 	fmt.Println()
 
 	color.New(color.FgBlue, color.OpBold).Println("Options:")
@@ -55,11 +59,12 @@ func PrintHelp() {
 	fmt.Printf("  -cg, --config-get <config item path>                        Get value to specified config item \n")
 	fmt.Printf("  -d,  --debug                                                Print more error detail\n")
 	fmt.Printf("  -f,  --follow                                               Follow mode - follow log output\n")
-	fmt.Printf("  -g,  --grok <grok pattern name>                             For non-json log line. See 'jog -cg grok.patterns' for available patterns in config file\n")
+	fmt.Printf("  -g,  --grok <grok pattern name>                             For non-json log line. The default patterns are saved in [%s]\n", defaultGrokLibraryDirs)
 	fmt.Printf("  -h,  --help                                                 Display this information\n")
 	fmt.Printf("  -j,  --json                                                 Output the raw JSON but then able to apply filters\n")
 	fmt.Printf("  -l,  --level <level value>                                  Filter by log level. For ex. --level warn \n")
 	fmt.Printf("  -n,  --lines <number of tail lines>                         Number of tail lines. 10 by default, for follow mode\n")
+	fmt.Printf("       --reset-grok-library-dir                               Save default GROK patterns to [%s]\n", defaultGrokLibraryDirs)
 	fmt.Printf("  -t,  --template                                             Print a config YAML file template\n")
 	fmt.Printf("  -V,  --version                                              Display app version information\n")
 	fmt.Println()

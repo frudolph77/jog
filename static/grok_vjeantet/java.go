@@ -1,8 +1,9 @@
-package grok_patterns 
+package grok_vjeantet 
 
 const (
   // Java ...
-  Java = `JAVACLASS (?:[a-zA-Z$_][a-zA-Z$_0-9]*\.)*[a-zA-Z$_][a-zA-Z$_0-9]*
+  Java string = `
+JAVACLASS (?:[a-zA-Z$_][a-zA-Z$_0-9]*\.)*[a-zA-Z$_][a-zA-Z$_0-9]*
 #Space is an allowed character to match special cases like 'Native Method' or 'Unknown Source'
 JAVAFILE (?:[A-Za-z0-9_. -]+)
 #Allow special <init> method

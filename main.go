@@ -57,6 +57,8 @@ func SetConfigItem(cfg config.Configuration, m map[string]interface{}, configIte
 }
 
 func main() {
+	config.InitDefaultGrokLibraryDir()
+
 	ok, options := OptionsWithCommandLine()
 	if !ok {
 		return
@@ -72,7 +74,7 @@ func main() {
 		}()
 	}
 
-	logFile := util.InitLogger()
+	logFile := util.InitLogger(config.JogHomeDir(true))
 	defer logFile.Close()
 
 	cfg := ReadConfig(options.ConfigFilePath)
@@ -93,6 +95,8 @@ func main() {
 	if cfg.TimestampField != nil {
 		options.InitTimestampFilters(cfg.TimestampField)
 	}
+
+	options.InitGroks(cfg)
 
 	if len(options.LogFilePath) == 0 {
 		log.Println("read JSON log lines from stdin")

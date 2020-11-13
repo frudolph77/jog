@@ -34,6 +34,7 @@ type OptionsT struct {
 	OutputRawJSON bool
 
 	GrokPatternsUsed []string
+	GrokPatterns     []string
 }
 
 // Options ...
@@ -42,9 +43,18 @@ type Options = *OptionsT
 // InitGroks ...
 func (i Options) InitGroks(cfg config.Configuration) {
 	if len(i.GrokPatternsUsed) == 0 {
-		// uses default patterns
+		// try to uses default patterns
 		i.GrokPatternsUsed = cfg.Grok.Uses
 	}
+
+	i.GrokPatterns = make([]string, len(i.GrokPatternsUsed))
+	for index, patternName := range i.GrokPatternsUsed {
+		i.GrokPatterns[index] = "%{" + patternName + "}"
+	}
+}
+
+func (i Options) isGrokEnabled() bool {
+	return len(i.GrokPatterns) > 0
 }
 
 // GetLevelFilters ...
@@ -196,6 +206,9 @@ func OptionsWithCommandLine() (bool, Options) {
 
 				r.GrokPatternsUsed = append(r.GrokPatternsUsed, os.Args[i+1])
 				i++
+			} else if arg == "--reset-grok-library-dir" {
+				config.ResetDefaultGrokLibraryDir()
+				return false, nil
 			} else if arg == "-a" || arg == "--after" {
 				if i+1 >= len(os.Args) {
 					color.Red.Println("Missing after argument\n")

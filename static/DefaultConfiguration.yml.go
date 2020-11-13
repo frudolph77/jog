@@ -2,7 +2,8 @@ package static
 
 const (
   // DefaultConfiguration_yml ...
-  DefaultConfiguration_yml = `colorization: true
+  DefaultConfiguration_yml string = `
+colorization: true
 pattern: "${timestamp} ${level} <${thread}> ${logger}: ${message} {${others}} ${stacktrace}"
 startup-line:
   color: FgGreen, OpBold
@@ -19,6 +20,16 @@ unknown-line:
 prefix:
   print: true
   color: FgBlue
+
+grok: # logstach GROK configuration, used to parse non-JSON log lines. DISABLED if ` + "`" + `uses` + "`" + ` is empty
+  uses: # array of GROK pattern names to be used. Check files in ` + "`" + `library-dirs` + "`" + ` for available patterns
+  matches-fields: # array of STANDARD field name by which a log line is considered to matches used GROK patterns
+    - timestamp
+  library-dirs: # array of library directory that has GROK pattern files
+    - ~/.jog/grok_vjeantet  # Will touch it and put default patterns there if not exists. To reset it, run ` + "`" + `jog --reset-grok-library-dir` + "`" + `
+    - ~/.jog/grok_extended
+    - ~/.jog/grok_mine
+    - ./.jog/grok_library # Ignore if not exists
 
 fields:
   others:
@@ -40,7 +51,7 @@ fields:
         alias: debug,20
         color: FgBlue,OpBold
       INFO:
-        alias: info,30
+        alias: info,30,log
         color: FgBlue,OpBold
       ERROR:
         alias: error,err,critical,50
@@ -146,5 +157,7 @@ fields:
     alias: "ver, @ver, @version"
     case-sensitive: false
     color: FgDefault
+
+
 `
 )
