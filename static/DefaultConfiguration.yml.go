@@ -2,12 +2,12 @@ package static
 
 const (
   // DefaultConfiguration_yml ...
-  DefaultConfiguration_yml string = `
-colorization: true
+  DefaultConfiguration_yml string = `colorization: true
 pattern: "${timestamp} ${level} <${thread}> ${logger}: ${message} {${others}} ${stacktrace}"
 startup-line:
   color: FgGreen, OpBold
   contains: "Started Application in"
+  print-format: "\n%s\n"
 
 line-no:
   print: true
@@ -42,6 +42,7 @@ fields:
       color: FgDefault
   level: # 'level' field is a hard-coded field used for level filter as well, so don't rename it
          # And, it must be an enum.
+    print-format: "%-5.5s" # follows https://golang.org/pkg/fmt/
     alias: "level, @level, severity, @severity"
     case-sensitive: false
     enums:
@@ -137,7 +138,7 @@ fields:
     alias: "err, error, stack, stack_trace, stack-trace, @stack, @stack_trace, @stack-trace, @stacktrace, error.stack_trace, @error.stack_trace"
     case-sensitive: false
     color: FgRed
-    before: "\nStack trace: \n"
+    print-format: "\nStack trace: \n%s"
   thread:
     alias: "thread_name, thread-name, threadname, @thread, @thread_name, @thread-name, @threadname"
     case-sensitive: false

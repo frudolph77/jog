@@ -1,13 +1,30 @@
-# targeting v1.0.0
-Test test test:
-1. unit test coverage: >= 80%
-2. design manual test case
+# targeting v1.0.0 (TODO)
+1. User manual - English
+2. Unit test coverage: 100%
+3. New feature: field path
 
-# v0.9.21 (TODO)
-1. New feature: support flat (non-JSON) log, using logstash GROK to parse
-2. New feature: tabularize log output - by @frudolph77
-3. Fix: replace tab in log lines by four lines - by @frudolph77
-4. A bit refactoring
+# v1.0.0-rc-2 (TODO)
+1. Unit test coverage: >= 80%
+2. Fix: ...
+3. New feature: initial arbitrary field filter
+
+# v1.0.0-rc-1 (TODO)
+1. Unit test coverage: >= 50%
+2. Fix: ...
+3. Enhancement: Log json log
+
+# v1.0.0-belta (TODO)
+1. User manual - Chineses
+2. Enhancement: improve grok support
+3. Enhancement: merge multiple configuration
+4. Replace dynamic object design with https://github.com/imdario/mergo & https://github.com/mitchellh/mapstructure
+
+# v1.0.0-alpha
+1. New feature: initial support flat (non-JSON) log, using logstash GROK to parse
+2. New feature: new configuration parameter `print-format`, for ex., able to tabularize log output - by @frudolph77
+3. Fix: replace tab in log lines by four spaces - by @frudolph77
+4. Remove `before` and `after` configuration parameters. Uses `print-format` instead
+5. A bit refactoring
 
 # v0.9.20 (2020-10-27)
 1. New feature: output the raw JSON but then able to apply filters (see example #9)
